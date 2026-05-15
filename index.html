@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="fr" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BonCommande Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<style>
+:root{--bg:#F7F6F3;--sur:#FFF;--sur2:#F0EEE9;--bdr:#E4E1DA;--acc:#1A1A2E;--red:#E84545;--grn:#16A34A;--grn2:rgba(22,163,74,.1);--txt:#1A1A1A;--txt2:#666;--txt3:#AAA;--sh:0 1px 3px rgba(0,0,0,.06),0 4px 14px rgba(0,0,0,.07);--r:13px;--rs:8px;--fd:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--tr:.16s cubic-bezier(.4,0,.2,1)}
+[data-theme=dark]{--bg:#0E0E14;--sur:#181822;--sur2:#20202C;--bdr:#2C2C3E;--txt:#EDEDF0;--txt2:#9090A8;--txt3:#555568;--sh:0 1px 3px rgba(0,0,0,.3),0 4px 14px rgba(0,0,0,.3)}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{font-size:15px}body{font-family:var(--fb);background:var(--bg);color:var(--txt);min-height:100vh;transition:background var(--tr),color var(--tr)}
+.tb{height:56px;background:var(--sur);border-bottom:1px solid var(--bdr);padding:0 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.logo{font-family:var(--fd);font-size:1.1rem;font-weight:800;letter-spacing:-.4px;display:flex;align-items:center;gap:7px}
+.logo-dot{width:7px;height:7px;background:var(--red);border-radius:50%}
+.logo-sub{font-size:.65rem;color:var(--txt3);text-transform:uppercase;letter-spacing:.5px;align-self:flex-end;margin-bottom:1px}
+.lay{display:grid;grid-template-columns:355px 1fr;height:calc(100vh - 56px);overflow:hidden}
+.sb{background:var(--sur);border-right:1px solid var(--bdr);overflow-y:auto;display:flex;flex-direction:column}
+.mn{overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px}
+.tabs{display:flex;gap:3px;background:var(--sur2);border-radius:var(--rs);padding:3px;margin:12px 12px 0}
+.tab{flex:1;padding:6px;border:none;background:transparent;color:var(--txt2);font-family:var(--fb);font-size:.76rem;font-weight:500;border-radius:6px;cursor:pointer;transition:all var(--tr);display:flex;align-items:center;justify-content:center;gap:4px}
+.tab.on{background:var(--sur);color:var(--txt);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.panels{flex:1;display:flex;flex-direction:column}
+.pnl{display:none;flex-direction:column;padding:12px;gap:9px}.pnl.on{display:flex}
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:14px;box-shadow:var(--sh)}
+.card-h{display:flex;align-items:center;justify-content:space-between;margin-bottom:11px}
+.card-t{font-family:var(--fd);font-size:.86rem;font-weight:700;display:flex;align-items:center;gap:6px}
+.chip{width:24px;height:24px;background:var(--sur2);border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.fg{display:flex;flex-direction:column;gap:4px;margin-bottom:8px}.fg:last-child{margin-bottom:0}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+label{font-size:.73rem;font-weight:500;color:var(--txt2)}
+input,textarea,select{background:var(--sur2);border:1px solid var(--bdr);border-radius:var(--rs);padding:8px 11px;color:var(--txt);font-family:var(--fb);font-size:.84rem;outline:none;width:100%;transition:border-color var(--tr),box-shadow var(--tr)}
+input:focus,textarea:focus,select:focus{border-color:var(--acc);box-shadow:0 0 0 3px rgba(26,26,46,.07)}
+textarea{resize:vertical;min-height:54px}
+[data-theme=dark] input,[data-theme=dark] textarea,[data-theme=dark] select{color-scheme:dark}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border:none;border-radius:var(--rs);font-family:var(--fb);font-size:.81rem;font-weight:500;cursor:pointer;transition:all var(--tr);white-space:nowrap}
+.bp{background:var(--acc);color:#fff}.bp:hover{background:#2a2a48;transform:translateY(-1px)}
+.br{background:var(--red);color:#fff}.br:hover{background:#c93737}
+.bg{background:transparent;color:var(--txt2);border:1px solid var(--bdr)}.bg:hover{background:var(--sur2);color:var(--txt)}
+.bs{padding:5px 10px;font-size:.75rem}.bi{padding:6px}.bf{width:100%;justify-content:center}
+.sw{position:relative}.sw input{padding-left:31px}
+.si{position:absolute;left:9px;top:50%;transform:translateY(-50%);color:var(--txt3);pointer-events:none}
+.pl{display:flex;flex-direction:column;gap:5px;max-height:330px;overflow-y:auto}
+.pr{display:flex;align-items:center;gap:7px;padding:7px 9px;background:var(--sur2);border:1px solid var(--bdr);border-radius:var(--rs);cursor:pointer;transition:all var(--tr)}
+.pr:hover{border-color:var(--acc);background:var(--sur)}.pr.ic{border-color:var(--grn);background:var(--grn2)}
+.pn{font-size:.81rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex:1;min-width:0}
+.ps{font-size:.69rem;color:var(--txt3);margin-top:1px}
+.pa{display:flex;gap:3px;opacity:0;transition:opacity var(--tr)}.pr:hover .pa{opacity:1}
+.indot{width:6px;height:6px;background:var(--grn);border-radius:50%;flex-shrink:0}
+.pg{display:flex;flex-wrap:wrap;gap:5px;max-height:180px;overflow-y:auto;margin-top:6px}
+.pill{padding:5px 11px;border:1.5px solid var(--bdr);border-radius:20px;background:var(--sur2);color:var(--txt);font-family:var(--fb);font-size:.77rem;font-weight:500;cursor:pointer;transition:all var(--tr)}
+.pill:hover{border-color:var(--acc)}.pill.on{border-color:var(--grn);background:var(--grn2);color:var(--grn);font-weight:600}
+/* CART */
+.cl{display:flex;flex-direction:column;gap:6px}
+.cr{display:flex;align-items:center;background:var(--sur);border:1px solid var(--bdr);border-radius:var(--rs);overflow:hidden;animation:si .17s ease;transition:border-color var(--tr)}.cr:hover{border-color:var(--acc)}
+@keyframes si{from{opacity:0;transform:translateX(-8px)}to{opacity:1;transform:none}}
+.ci{flex:1;min-width:0;padding:9px 10px}
+.cn{font-size:.83rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.csk2{font-size:.69rem;color:var(--txt3);margin-top:1px}
+.cq{display:flex;align-items:center;border-left:1px solid var(--bdr);flex-shrink:0}
+.qb{width:36px;height:44px;border:none;background:transparent;cursor:pointer;font-size:1.1rem;font-weight:700;color:var(--txt2);transition:background var(--tr),color var(--tr);flex-shrink:0}
+.qb:hover{background:var(--sur2)}.qb.qm:hover{background:rgba(232,69,69,.08);color:var(--red)}.qb.qp:hover{background:rgba(22,163,74,.08);color:var(--grn)}
+.qi{width:44px;height:44px;text-align:center;border:none;border-left:1px solid var(--bdr);border-right:1px solid var(--bdr);background:var(--sur2);font-size:.9rem;font-weight:700;color:var(--txt);padding:0;-moz-appearance:textfield}
+.qi::-webkit-inner-spin-button,.qi::-webkit-outer-spin-button{-webkit-appearance:none}
+.qi:focus{outline:none;background:var(--sur)}
+.cdel{width:36px;height:44px;border:none;border-left:1px solid var(--bdr);background:transparent;cursor:pointer;font-size:1.1rem;color:var(--txt3);transition:background var(--tr),color var(--tr);flex-shrink:0}
+.cdel:hover{background:rgba(232,69,69,.08);color:var(--red)}
+.tot{border-top:1px solid var(--bdr);margin-top:8px;padding-top:9px}
+.tr2{display:flex;justify-content:space-between;font-size:.82rem;padding:2px 0}
+.tr2.big{font-family:var(--fd);font-size:.92rem;font-weight:700;padding-top:7px;border-top:1px solid var(--bdr);margin-top:4px}
+.hr2{display:flex;align-items:center;gap:9px;padding:10px 11px;border:1px solid var(--bdr);border-radius:var(--rs);background:var(--sur2);transition:border-color var(--tr)}.hr2:hover{border-color:var(--acc)}
+.hbc{font-family:var(--fd);font-size:.84rem;font-weight:700}.hcl{font-size:.77rem;color:var(--txt2);margin-top:1px}.hdt{font-size:.7rem;color:var(--txt3);margin-top:1px}
+.hqt{font-family:var(--fd);font-weight:700;color:var(--red);margin-left:auto;font-size:.84rem;white-space:nowrap}
+.pf2{background:var(--sur2);border:1px solid var(--bdr);border-radius:var(--rs);padding:11px;animation:si .17s ease}
+.bcn{font-family:var(--fd);font-size:1.35rem;font-weight:800;letter-spacing:-.7px}
+.bcd{font-size:.77rem;color:var(--txt2);margin-top:2px}
+.pvb{display:inline-flex;align-items:center;gap:5px;background:rgba(232,69,69,.1);color:var(--red);border:1px solid rgba(232,69,69,.25);border-radius:20px;padding:3px 10px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.ab{display:flex;gap:7px;flex-wrap:wrap;padding:13px 15px;background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);box-shadow:var(--sh)}
+.emp{text-align:center;padding:24px 16px;color:var(--txt3)}.emp .ei{font-size:1.8rem;margin-bottom:7px;opacity:.35}.emp p{font-size:.8rem}
+.badge{display:inline-flex;align-items:center;justify-content:center;min-width:17px;height:17px;background:var(--red);color:#fff;border-radius:9px;font-size:.67rem;font-weight:700;padding:0 4px}
+.bk{position:fixed;inset:0;background:rgba(0,0,0,.46);backdrop-filter:blur(4px);display:flex;align-items:center;justify-content:center;z-index:999;opacity:0;pointer-events:none;transition:opacity var(--tr)}
+.bk.on{opacity:1;pointer-events:all}
+.mo{background:var(--sur);border:1px solid var(--bdr);border-radius:var(--r);padding:20px;width:450px;max-width:95vw;max-height:90vh;overflow-y:auto;transform:scale(.95) translateY(8px);transition:transform var(--tr);box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.bk.on .mo{transform:none}
+.mot{font-family:var(--fd);font-size:.98rem;font-weight:800;margin-bottom:15px;display:flex;align-items:center;justify-content:space-between}
+.pv-mo .mo{width:660px}
+.pw{background:var(--sur2);border:1px solid var(--bdr);border-radius:var(--r);padding:9px;overflow:auto}
+#pvf{background:#fff;border-radius:5px;box-shadow:0 3px 16px rgba(0,0,0,.12);padding:34px;min-height:360px}
+.lu{display:flex;align-items:center;gap:11px;margin-bottom:13px}
+.lb{width:58px;height:58px;border:2px dashed var(--bdr);border-radius:var(--rs);display:flex;align-items:center;justify-content:center;color:var(--txt3);overflow:hidden;cursor:pointer;transition:border-color var(--tr);flex-shrink:0}
+.lb:hover{border-color:var(--acc)}.lb img{width:100%;height:100%;object-fit:contain}
+.tc{position:fixed;bottom:18px;right:18px;display:flex;flex-direction:column;gap:6px;z-index:9999}
+.toast{background:var(--acc);color:#fff;padding:8px 13px;border-radius:var(--rs);font-size:.8rem;display:flex;align-items:center;gap:6px;box-shadow:0 4px 18px rgba(0,0,0,.2);animation:ti .2s ease;transition:opacity .2s,transform .2s}
+.toast.ok{background:var(--grn)}.toast.err{background:var(--red)}
+@keyframes ti{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+::-webkit-scrollbar{width:4px;height:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--bdr);border-radius:4px}
+@media(max-width:700px){.lay{grid-template-columns:1fr;height:auto;overflow:visible}.sb{height:auto}.mn{padding:12px}}
+/* PDF overlay */
+#pdfOv{display:none;position:fixed;inset:0;background:#1a1a2e;z-index:2000;flex-direction:column}
+#pdfOvBar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;flex-shrink:0;gap:10px}
+#pdfOvTitle{color:#fff;font-family:var(--fd);font-weight:700;font-size:.9rem;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pdfOvHint{background:rgba(232,69,69,.9);color:#fff;text-align:center;padding:7px 12px;font-size:.76rem;flex-shrink:0}
+#pdfFrame{flex:1;border:none;width:100%;background:#525659}
+</style>
+</head>
+<body>
+
+<header class="tb">
+  <div class="logo"><div class="logo-dot"></div>BonCommande<span style="color:var(--red)">Pro</span><span class="logo-sub">Prévente</span></div>
+  <div style="display:flex;gap:6px;align-items:center">
+    <button class="btn bg bs" onclick="openMo('stMo')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg> Entreprise</button>
+    <button class="btn bg bi" id="thBtn" onclick="toggleTheme()"><svg id="thIco" xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/></svg></button>
+  </div>
+</header>
+
+<div class="lay">
+  <aside class="sb">
+    <div class="tabs">
+      <button class="tab on" id="tb-nouveau" onclick="switchTab('nouveau')"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg> Nouveau</button>
+      <button class="tab" id="tb-produits" onclick="switchTab('produits')"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m7.5 4.27 9 5.15M3.23 7.35l9 5.15m0 0v9.3m0-9.3-9-5.15m9 5.15 9-5.15M3 12.12V7.5l9-5.15 9 5.15v4.62"/></svg> Produits</button>
+      <button class="tab" id="tb-historique" onclick="switchTab('historique')"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Histo. <span class="badge" id="hBadge">0</span></button>
+    </div>
+    <div class="panels">
+      <div class="pnl on" id="pnl-nouveau">
+        <div class="card">
+          <div class="card-h"><div class="card-t"><div class="chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>Client</div></div>
+          <div class="fr">
+            <div class="fg"><label>Code client</label><input type="text" id="cCode" placeholder="CLI-001" oninput="livePreview()"></div>
+            <div class="fg"><label>Nom du client *</label><input type="text" id="cName" placeholder="Nom ou société" oninput="livePreview()"></div>
+          </div>
+          <div class="fg"><label>Téléphone</label><input type="tel" id="cPhone" placeholder="+213 6xx xxx xxx" oninput="livePreview()"></div>
+          <div class="fg"><label>Adresse</label><input type="text" id="cAddr" placeholder="Adresse, Wilaya" oninput="livePreview()"></div>
+          <div class="fg"><label>Remarque</label><textarea id="cNote" placeholder="Notes..." oninput="livePreview()"></textarea></div>
+        </div>
+      </div>
+      <div class="pnl" id="pnl-produits">
+        <button class="btn bp bf" onclick="togglePF()"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg> Ajouter un produit</button>
+        <div id="pfWrap" style="display:none">
+          <div class="pf2">
+            <div class="fg"><label>Nom *</label><input type="text" id="pf-n" placeholder="Ex: CANDY CHOCO 1L"></div>
+            <div class="fg"><label>Référence / SKU</label><input type="text" id="pf-s" placeholder="PF-000001"></div>
+            <div style="display:flex;gap:6px;margin-top:4px">
+              <button class="btn bp bs" onclick="saveProd()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> Enregistrer</button>
+              <button class="btn bg bs" onclick="cancelPF()">Annuler</button>
+            </div>
+          </div>
+        </div>
+        <div class="sw"><svg class="si" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="sbSearch" placeholder="Rechercher..." oninput="renderSB()"></div>
+        <div class="pl" id="sbList"></div>
+      </div>
+      <div class="pnl" id="pnl-historique">
+        <div id="histList" style="display:flex;flex-direction:column;gap:6px"></div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="mn">
+    <div class="card" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+      <div><div class="bcn" id="bcNum">BC-2026-001</div><div class="bcd" id="bcDate"></div></div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="pvb">Prévente</div>
+        <button class="btn bg bs" onclick="newOrder()"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg> Nouveau BC</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-h"><div class="card-t"><div class="chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg></div>Sélectionner des produits</div><span style="font-size:.73rem;color:var(--txt3)">Tapez pour ajouter</span></div>
+      <div class="sw"><svg class="si" xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input type="text" id="mnSearch" placeholder="Nom ou référence..." oninput="renderMN()"></div>
+      <div class="pg" id="pgrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="card-h">
+        <div class="card-t"><div class="chip"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/></svg></div>Panier <span class="badge" id="cBadge">0</span></div>
+        <button class="btn bg bs" onclick="clearCart()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg> Vider</button>
+      </div>
+      <div id="cList" class="cl"></div>
+      <div id="cEmpty" class="emp"><div class="ei">🛒</div><p>Aucun produit sélectionné</p></div>
+      <div id="cTot" style="display:none">
+        <div class="tot">
+          <div class="tr2"><span style="color:var(--txt2)">Total articles</span><span id="tQ" style="font-weight:600">0</span></div>
+          <div class="tr2 big"><span>Références</span><span id="tL" style="color:var(--red)">0</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ab">
+      <button class="btn bg" onclick="doPreview()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg> Aperçu</button>
+      <button class="btn bp" onclick="doPDF()"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> Télécharger PDF</button>
+    </div>
+  </main>
+</div>
+
+<!-- Modal Settings -->
+<div class="bk" id="stMo">
+  <div class="mo">
+    <div class="mot">Paramètres Entreprise <button class="btn bg bi" onclick="closeMo('stMo')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></div>
+    <div class="lu">
+      <div class="lb" id="lBox" onclick="document.getElementById('lFile').click()"><svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></div>
+      <div>
+        <div style="font-size:.78rem;font-weight:500;margin-bottom:5px">Logo entreprise</div>
+        <button class="btn bg bs" onclick="document.getElementById('lFile').click()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> Charger</button>
+        <button class="btn bg bs" id="rmLogo" style="display:none" onclick="removeLogo()">✕ Retirer</button>
+        <input type="file" id="lFile" accept="image/*" style="display:none" onchange="handleLogo(event)">
+      </div>
+    </div>
+    <div class="fg"><label>Nom de l'entreprise *</label><input type="text" id="coName" placeholder="Tchin-Lait Candia"></div>
+    <div class="fr">
+      <div class="fg"><label>Téléphone</label><input type="text" id="coPhone" placeholder="+213 xx xxx xxxx"></div>
+      <div class="fg"><label>Email</label><input type="email" id="coEmail" placeholder="contact@..."></div>
+    </div>
+    <div class="fg"><label>Adresse</label><input type="text" id="coAddr" placeholder="Adresse, Ville, Wilaya"></div>
+    <div class="fr">
+      <div class="fg"><label>RC / NIF</label><input type="text" id="coRC" placeholder="123456789"></div>
+      <div class="fg"><label>Activité</label><input type="text" id="coInfo" placeholder="Distribution laitière"></div>
+    </div>
+    <button class="btn bp bf" style="margin-top:6px" onclick="saveSt()"><svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg> Enregistrer</button>
+  </div>
+</div>
+
+<!-- Modal Preview -->
+<div class="bk pv-mo" id="pvMo">
+  <div class="mo">
+    <div class="mot">
+      Aperçu — <span id="pvBcN" style="color:var(--txt2);font-weight:500;font-family:var(--fd)"></span>
+      <div style="display:flex;gap:6px">
+        <button class="btn bp bs" onclick="doPDF()"><svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg> PDF</button>
+        <button class="btn bg bi" onclick="closeMo('pvMo')"><svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+    </div>
+    <div class="pw"><div id="pvf"></div></div>
+  </div>
+</div>
+
+<!-- PDF Overlay (viewer + download) -->
+<div id="pdfOv">
+  <div id="pdfOvBar">
+    <span id="pdfOvTitle">Bon de Commande</span>
+    <div style="display:flex;gap:8px;flex-shrink:0">
+      <button id="pdfShareBtn" onclick="sharePdf()" style="display:none;background:#16a34a;color:#fff;border:none;border-radius:7px;padding:7px 14px;cursor:pointer;font-size:.82rem;font-weight:600">⬆ Enregistrer</button>
+      <button onclick="closePdfOv()" style="background:rgba(255,255,255,.15);color:#fff;border:none;border-radius:7px;padding:7px 14px;cursor:pointer;font-size:.82rem">✕ Fermer</button>
+    </div>
+  </div>
+  <div id="pdfOvHint">📱 Appuyez sur <strong>⬆ Enregistrer</strong> ou utilisez le menu ⋮ du lecteur PDF pour sauvegarder</div>
+  <iframe id="pdfFrame" src="" style="flex:1;border:none;width:100%;background:#525659;min-height:0;flex:1"></iframe>
+</div>
+
+<div class="tc" id="tcont"></div>
+
+<script>
+var ST={cart:[],prods:[],hist:[],cfg:{},logo:null,bcNum:'',editId:null};
+var _pdfUri='',_pdfFile='';
+
+var CAT=[
+{id:'PF-000001',name:'DE 1L',sku:'PF-000001'},{id:'PF-000002',name:'DE 50CL',sku:'PF-000002'},{id:'PF-000004',name:'VIVA',sku:'PF-000004'},{id:'PF-000005',name:'ENTIER',sku:'PF-000005'},{id:'PF-000003',name:'SILHOUETTE',sku:'PF-000003'},{id:'PF-000048',name:'DE 1L SANS LACTOSE',sku:'PF-000048'},{id:'PF-000061',name:'SILHOUETTE 50CL',sku:'PF-000061'},{id:'PF-000062',name:'VIVA 50 CL',sku:'PF-000062'},{id:'PF-000063',name:'ENTIER 50CL',sku:'PF-000063'},{id:'PF-000064',name:'DE 50CL SANS LACTOSE',sku:'PF-000064'},
+{id:'PF-000010',name:'TWIST O-A 20CL',sku:'PF-000010'},{id:'PF-000019',name:'TWIST P-A 20CL',sku:'PF-000019'},{id:'PF-000011',name:'TWIST O-M 20CL',sku:'PF-000011'},{id:'PF-000020',name:'TWIST O-F-B 20CL',sku:'PF-000020'},{id:'PF-000059',name:'TWIST M-A 20CL',sku:'PF-000059'},{id:'PF-000046',name:'TWIST O-F-B 125ML',sku:'PF-000046'},{id:'PF-000047',name:'TWIST O-A 125ML',sku:'PF-000047'},{id:'PF-000049',name:'TWIST P-A 125ML',sku:'PF-000049'},{id:'PF-000050',name:'TWIST O-M 125ML',sku:'PF-000050'},
+{id:'PF-000006',name:'CANDY CHOCO 1L',sku:'PF-000006'},{id:'PF-000009',name:'CANDY CHOCO 20CL',sku:'PF-000009'},{id:'PF-000117',name:'CANDY NOISETTE 180ML',sku:'PF-000117'},{id:'PF-000028',name:'CANDY FRAISE 20CL',sku:'PF-000028'},{id:'PF-000031',name:'CANDY CHOCO 125 ML',sku:'PF-000031'},{id:'PF-000032',name:'CANDY FRAISE 125 ML',sku:'PF-000032'},{id:'PF-000033',name:'CANDY BANANE 125 ML',sku:'PF-000033'},{id:'PF-000042',name:'CANDY CARAMEL 125 ML',sku:'PF-000042'},
+{id:'PF-000013',name:'BOISSON ORANGE 1L',sku:'PF-000013'},{id:'PF-000015',name:'BOISSON COCKTAIL 1L',sku:'PF-000015'},{id:'PF-000018',name:'BOISSON CITRONNADE',sku:'PF-000018'},{id:'PF-000027',name:'BOISSON NECTAR DE GRENADE',sku:'PF-000027'},{id:'PF-000012',name:'BOISSON ORANGE 20CL',sku:'PF-000012'},{id:'PF-000016',name:'BOISSON COCKTAIL 20CL',sku:'PF-000016'},
+{id:'PF-000114',name:'FRUITY BARBE A PAPA 180ML',sku:'PF-000114'},{id:'PF-000115',name:'FRUITY BONBON FRAMBOISE 180ML',sku:'PF-000115'},{id:'PF-000116',name:'FRUITY BUBBLE GUM 180ML',sku:'PF-000116'},
+{id:'PF-000133',name:'RAISIN & MURE 20CL',sku:'PF-000133'},{id:'PF-000134',name:'POMME POIRE ANANAS 20CL',sku:'PF-000134'},{id:'PF-000135',name:'MELON & ANANAS 20CL',sku:'PF-000135'},{id:'PF-000136',name:'CLEMENTINE 20CL',sku:'PF-000136'},{id:'PF-000137',name:'RAISIN & MURE 1L',sku:'PF-000137'},{id:'PF-000138',name:'POMME POIRE ANANAS 1L',sku:'PF-000138'},{id:'PF-000139',name:'MELON & ANANAS 1L',sku:'PF-000139'},{id:'PF-000140',name:'CLEMENTINE 1L',sku:'PF-000140'},
+{id:'PF-000128',name:'CLEMENTINE 950ML',sku:'PF-000128'},{id:'PF-000129',name:'RAISIN MURE 950ML',sku:'PF-000129'},{id:'PF-000130',name:'MELON ANANAS 950ML',sku:'PF-000130'},{id:'PF-000131',name:'POM POIR ANANAS 950ML',sku:'PF-000131'},{id:'PF-R00028',name:'CITRON MENTH 950ML',sku:'PF-R00028'},
+{id:'20000099',name:'CLEMENTINE 160ML',sku:'20000099'},{id:'20000100',name:'RAISIN MURE 160ML',sku:'20000100'},{id:'20000102',name:'MELON ANANAS 160ML',sku:'20000102'},{id:'20000103',name:'POM POIR ANANAS 160ML',sku:'20000103'},{id:'20000141',name:'CITRON MENTH 160ML',sku:'20000141'},
+{id:'PF-000038',name:'PREPARATION CULINAIRE 200ML',sku:'PF-000038'},{id:'PF-000065',name:'PREPARATION CULINAIRE 50CL',sku:'PF-000065'},{id:'PF-000066',name:'PREPARATION CULINAIRE 1L',sku:'PF-000066'},{id:'20000106',name:'PREPARATION FOUETTABLE 1L',sku:'20000106'},{id:'20000140',name:'PREPARATION FOUETTABLE 50CL',sku:'20000140'},
+{id:'PF-000067',name:'POUDRE MIX ICE CREAM VANILLE',sku:'PF-000067'},{id:'PF-000068',name:'POUDRE MIX ICE CREAM FRAISE',sku:'PF-000068'},{id:'PF-000069',name:'POUDRE MIX ICE CREAM CHOCOLAT',sku:'PF-000069'},
+{id:'MSE-000001',name:'ETUI 500G',sku:'MSE-000001'},{id:'PF-000118',name:'ETUI 125G',sku:'PF-000118'},{id:'PF-000101',name:'MAYA',sku:'PF-000101'},{id:'PF-000100',name:'EXTRA 75CL',sku:'PF-000100'},
+{id:'PF-R000090',name:'RAMDY AUTHENTIQUE 8P F',sku:'PF-R000090'},{id:'PF-R000091',name:'RAMDY AUTHENTIQUE 16P F',sku:'PF-R000091'},{id:'PF-R000092',name:'RAMDY AUTHENTIQUE 24P F',sku:'PF-R000092'},{id:'PF-R000093',name:'RAMDY AUTHENTIQUE 32P F',sku:'PF-R000093'},{id:'PF-R000094',name:'RAMDY AUTHENTIQUE 300g F',sku:'PF-R000094'},
+{id:'PF-R000100',name:'GYZMO 8P PA',sku:'PF-R000100'},{id:'PF-R000101',name:'GYZMO 16P PA',sku:'PF-R000101'},{id:'PF-R000102',name:'GYZMO 24P PA',sku:'PF-R000102'},{id:'PF-R000103',name:'GYZMO 32P PA',sku:'PF-R000103'},{id:'PF-R000104',name:'GYZMO 300G PA',sku:'PF-R000104'},{id:'PF-R000105',name:'GYZMO 600G PA',sku:'PF-R000105'},{id:'PF-R000106',name:'GYZMO 1.7kg PA',sku:'PF-R000106'},{id:'20000171',name:'GYZMO SEAU 1.8 KG',sku:'20000171'},
+{id:'PF-R000107',name:'TCHINCHEESE 8P SF',sku:'PF-R000107'},{id:'PF-R000108',name:'TCHINCHEESE 16P SF',sku:'PF-R000108'},{id:'PF-R000109',name:'TCHINCHEESE 24P SF',sku:'PF-R000109'},{id:'PF-R000110',name:'TCHINCHEESE 32P SF',sku:'PF-R000110'},
+{id:'20000116',name:'BRASSE FRAISE 95G',sku:'20000116'},{id:'20000117',name:'BRASSE FRUITS DES BOIS 95G',sku:'20000117'},{id:'20000119',name:'BRASSE BANANE 95G',sku:'20000119'},{id:'20000120',name:'BRASSE CITRON 95G',sku:'20000120'},{id:'20000121',name:'BRASSE MANGUE 95G',sku:'20000121'},{id:'20000122',name:'BRASSE CERISE 95G',sku:'20000122'},{id:'20000123',name:'BRASSE PECHE 95G',sku:'20000123'},{id:'20000124',name:'BRASSE AUX FRUITS FDB 95G',sku:'20000124'},{id:'20000126',name:'BRASSE AUX FRUITS FF 95G',sku:'20000126'},{id:'20000127',name:'BRASSE AUX FRUITS ANANAS 95G',sku:'20000127'},{id:'20000129',name:'BRASSE AUX FRUITS FRAISE 95G',sku:'20000129'},{id:'20000130',name:'BRASSE AUX FRUITS ABRICOT 95G',sku:'20000130'},{id:'20000131',name:'BRASSE AUX FRUITS PECHE 95G',sku:'20000131'},
+{id:'20000133',name:'ETUVE ABRICO 95G',sku:'20000133'},{id:'20000135',name:'ETUVE BANANE 95G',sku:'20000135'},{id:'20000136',name:'ETUVE FRAISE 95G',sku:'20000136'},{id:'20000137',name:'ETUVE FRUITS DES BOIS 95G',sku:'20000137'},{id:'20000138',name:'ETUVE CITRON 95G',sku:'20000138'},{id:'20000139',name:'ETUVE FRAMBOISE 95G',sku:'20000139'},{id:'20000175',name:'ETUVE NATURE 95G',sku:'20000175'},
+{id:'PF-000097',name:'RAMDY 300G SF',sku:'PF-000097'},{id:'PF-000098',name:'RAMDY 600G SF',sku:'PF-000098'},{id:'PF-000099',name:'RAMDY 1,7KG SF',sku:'PF-000099'},{id:'20000176',name:'RAMDY 600G (08P)',sku:'20000176'},
+{id:'PF-R00013',name:'CITRONNADE RAMDY',sku:'PF-R00013'},{id:'PF-R00023',name:'CITRONNADE SACHET',sku:'PF-R00023'},{id:'PF-R00024',name:"L'BEN SACHET",sku:'PF-R00024'},{id:'PF-R00025',name:'RAIB SACHET',sku:'PF-R00025'},{id:'PF-R00026',name:"L'BEN CANDIA 980ML",sku:'PF-R00026'},{id:'PF-R00127',name:'RAIB CANDIA 980ML',sku:'PF-R00127'},{id:'PF-R00010',name:"L'BEN RAMDY 980ML",sku:'PF-R00010'},{id:'20000182',name:"LIA L'BEN 980G",sku:'20000182'},{id:'20000174',name:'LIA RAIB 980G',sku:'20000174'},
+{id:'PF-000119',name:'YAB FRAMBOISE 950G',sku:'PF-000119'},{id:'PF-000120',name:'YAB BANANE 950G',sku:'PF-000120'},{id:'PF-000121',name:'YAB ABRICOT 950G',sku:'PF-000121'},{id:'PF-000122',name:'YAB N-COCO 950G',sku:'PF-000122'},{id:'PF-000123',name:'YAB FRAMBOISE 170G',sku:'PF-000123'},{id:'PF-000124',name:'YAB BANANE 170G',sku:'PF-000124'},{id:'PF-000125',name:'YAB ABRICOT 170G',sku:'PF-000125'},{id:'PF-000126',name:'YAB N-COCO 170G',sku:'PF-000126'},
+{id:'20000160',name:'CREME DESSERT CHOCOLAT 80G',sku:'20000160'},{id:'20000164',name:'CREME DESSERT VANILLE 80G',sku:'20000164'},{id:'20000165',name:'CREME DESSERT CARAMEL 80G',sku:'20000165'},
+{id:'PF-R00001',name:'FROMAGE FONDU 8P',sku:'PF-R00001'},{id:'PF-R00002',name:'FROMAGE FONDU 16P',sku:'PF-R00002'},{id:'PF-R00027',name:'FROMAGE FONDU 24P',sku:'PF-R00027'},{id:'PF-R00007',name:'PREP FROMAGE 300G',sku:'PF-R00007'},{id:'PF-R00008',name:'PREP FROMAGE 600G',sku:'PF-R00008'},{id:'PF-R00009',name:'PREP FROMAGE 1,7KG',sku:'PF-R00009'}
+];
+
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);localStorage.setItem(k,v);}catch(e){}}
+function lsJ(k,v){try{if(v===undefined){var r=localStorage.getItem(k);return r?JSON.parse(r):null;}localStorage.setItem(k,JSON.stringify(v));}catch(e){return null;}}
+
+function init(){
+  var p=lsJ('bc_p'),h=lsJ('bc_h'),c=lsJ('bc_c'),l=ls('bc_l');
+  if(p)ST.prods=p; else ST.prods=CAT.map(function(x){return{id:x.id,name:x.name,sku:x.sku};});
+  if(h)ST.hist=h;
+  if(c)ST.cfg=c;
+  if(l)ST.logo=l;
+  refreshBC(); setDate(); renderSB(); renderMN(); renderCart(); renderHist(); loadCfgUI();
+  document.querySelectorAll('.bk').forEach(function(b){b.addEventListener('click',function(e){if(e.target===b)b.classList.remove('on');});});
+}
+
+function save(){
+  lsJ('bc_p',ST.prods); lsJ('bc_h',ST.hist); lsJ('bc_c',ST.cfg);
+  if(ST.logo)ls('bc_l',ST.logo);
+}
+
+function refreshBC(){
+  var n=parseInt(ls('bc_cnt')||'0')+1,y=new Date().getFullYear();
+  ST.bcNum='BC-'+y+'-'+('00'+n).slice(-3);
+  var el=document.getElementById('bcNum'); if(el)el.textContent=ST.bcNum;
+}
+function bumpBC(){ls('bc_cnt',String(parseInt(ls('bc_cnt')||'0')+1));refreshBC();}
+function setDate(){var el=document.getElementById('bcDate');if(el)el.textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',year:'numeric',month:'long',day:'numeric'});}
+
+function switchTab(n){
+  ['nouveau','produits','historique'].forEach(function(t){
+    var tb=document.getElementById('tb-'+t),pn=document.getElementById('pnl-'+t);
+    if(tb)tb.classList.toggle('on',t===n);
+    if(pn)pn.classList.toggle('on',t===n);
+  });
+  if(n==='historique')renderHist();
+}
+
+function togglePF(prod){
+  var w=document.getElementById('pfWrap');
+  if(w.style.display!=='none'&&!prod){cancelPF();return;}
+  w.style.display='block';
+  ST.editId=prod?prod.id:null;
+  document.getElementById('pf-n').value=prod?prod.name:'';
+  document.getElementById('pf-s').value=prod?(prod.sku||''):'';
+  document.getElementById('pf-n').focus();
+}
+function cancelPF(){document.getElementById('pfWrap').style.display='none';ST.editId=null;}
+function saveProd(){
+  var name=document.getElementById('pf-n').value.trim(),sku=document.getElementById('pf-s').value.trim();
+  if(!name){toast('Nom requis','err');return;}
+  if(ST.editId){
+    var i=ST.prods.findIndex(function(p){return p.id===ST.editId;});
+    if(i!==-1)ST.prods[i]={id:ST.editId,name:name,sku:sku};
+    var ci=ST.cart.findIndex(function(c){return c.id===ST.editId;});
+    if(ci!==-1){ST.cart[ci].name=name;ST.cart[ci].sku=sku;}
+    toast('Produit modifié');
+  }else{ST.prods.push({id:'u_'+Date.now(),name:name,sku:sku});toast('Produit ajouté','ok');}
+  save();cancelPF();renderSB();renderMN();renderCart();
+}
+function delProd(id){
+  if(!confirm('Supprimer ce produit ?'))return;
+  ST.prods=ST.prods.filter(function(p){return p.id!==id;});
+  ST.cart=ST.cart.filter(function(c){return c.id!==id;});
+  save();renderSB();renderMN();renderCart();toast('Supprimé');
+}
+
+function flt(q){var lq=q.toLowerCase();return ST.prods.filter(function(p){return p.name.toLowerCase().indexOf(lq)!==-1||(p.sku||'').toLowerCase().indexOf(lq)!==-1;});}
+
+function renderSB(){
+  var q=document.getElementById('sbSearch')?document.getElementById('sbSearch').value:'',el=document.getElementById('sbList'),hit=flt(q),ic={};
+  ST.cart.forEach(function(c){ic[c.id]=true;});
+  if(!hit.length){el.innerHTML='<div class="emp" style="padding:12px"><p>Aucun produit</p></div>';return;}
+  el.innerHTML='';
+  hit.forEach(function(p){
+    var d=document.createElement('div');
+    d.className='pr'+(ic[p.id]?' ic':'');
+    d.innerHTML=(ic[p.id]?'<div class="indot"></div>':'')+'<div style="flex:1;min-width:0"><div class="pn">'+esc(p.name)+'</div>'+(p.sku?'<div class="ps">'+esc(p.sku)+'</div>':'')+'</div><div class="pa"></div>';
+    d.onclick=function(e){if(!e.target.closest('.pa'))addToCart(p.id);};
+    var pa=d.querySelector('.pa');
+    var ed=document.createElement('button');ed.className='btn bg bi bs';ed.title='Modifier';
+    ed.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/></svg>';
+    ed.onclick=function(e){e.stopPropagation();togglePF(ST.prods.find(function(x){return x.id===p.id;}));};
+    var dl=document.createElement('button');dl.className='btn br bi bs';dl.title='Supprimer';
+    dl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    dl.onclick=function(e){e.stopPropagation();delProd(p.id);};
+    pa.appendChild(ed);pa.appendChild(dl);
+    el.appendChild(d);
+  });
+}
+
+function renderMN(){
+  var q=document.getElementById('mnSearch')?document.getElementById('mnSearch').value:'',grid=document.getElementById('pgrid'),hit=flt(q),ic={};
+  ST.cart.forEach(function(c){ic[c.id]=true;});
+  if(!hit.length){grid.innerHTML='<span style="color:var(--txt3);font-size:.77rem">Aucun produit</span>';return;}
+  grid.innerHTML='';
+  hit.forEach(function(p){
+    var b=document.createElement('button');
+    b.className='pill'+(ic[p.id]?' on':'');
+    b.textContent=(ic[p.id]?'✓ ':'')+p.name;
+    b.onclick=function(){addToCart(p.id);};
+    grid.appendChild(b);
+  });
+}
+
+function addToCart(id){
+  var prod=ST.prods.find(function(p){return p.id===id;});if(!prod)return;
+  var ex=ST.cart.find(function(c){return c.id===id;});
+  if(ex){ex.qty+=1;}else{ST.cart.push({id:id,name:prod.name,sku:prod.sku||'',qty:1});}
+  renderCart();renderSB();renderMN();livePreview();
+}
+function rmCart(id){ST.cart=ST.cart.filter(function(c){return c.id!==id;});renderCart();renderSB();renderMN();livePreview();}
+function chQty(id,d){var it=ST.cart.find(function(c){return c.id===id;});if(!it)return;it.qty=Math.max(1,it.qty+d);renderCart();livePreview();}
+function setQty(id,v){var it=ST.cart.find(function(c){return c.id===id;});if(!it)return;var q=parseInt(v);if(isNaN(q)||q<=0){rmCart(id);return;}it.qty=q;renderCart();livePreview();}
+function clearCart(){if(!ST.cart.length)return;if(!confirm('Vider le panier ?'))return;ST.cart=[];renderCart();renderSB();renderMN();livePreview();}
+
+function renderCart(){
+  var list=document.getElementById('cList'),empty=document.getElementById('cEmpty'),tot=document.getElementById('cTot');
+  document.getElementById('cBadge').textContent=ST.cart.length;
+  if(!ST.cart.length){list.innerHTML='';empty.style.display='block';tot.style.display='none';return;}
+  empty.style.display='none';tot.style.display='block';
+  list.innerHTML='';
+  ST.cart.forEach(function(it){
+    var row=document.createElement('div');row.className='cr';
+    var info=document.createElement('div');info.className='ci';
+    info.innerHTML='<div class="cn">'+esc(it.name)+'</div>'+(it.sku?'<div class="csk2">'+esc(it.sku)+'</div>':'');
+    var qc=document.createElement('div');qc.className='cq';
+    var minus=document.createElement('button');minus.className='qb qm';minus.textContent='−';
+    minus.onclick=(function(id){return function(){chQty(id,-1);};})(it.id);
+    var inp=document.createElement('input');inp.type='number';inp.className='qi';inp.value=it.qty;inp.min=1;
+    inp.onclick=function(){this.select();};
+    inp.onchange=(function(id,i){return function(){setQty(id,i.value);};})(it.id,inp);
+    var plus=document.createElement('button');plus.className='qb qp';plus.textContent='+';
+    plus.onclick=(function(id){return function(){chQty(id,1);};})(it.id);
+    qc.appendChild(minus);qc.appendChild(inp);qc.appendChild(plus);
+    var del=document.createElement('button');del.className='cdel';del.textContent='×';
+    del.onclick=(function(id){return function(){rmCart(id);};})(it.id);
+    row.appendChild(info);row.appendChild(qc);row.appendChild(del);
+    list.appendChild(row);
+  });
+  var tq=ST.cart.reduce(function(s,i){return s+i.qty;},0);
+  document.getElementById('tQ').textContent=tq+' unités';
+  document.getElementById('tL').textContent=ST.cart.length+' référence'+(ST.cart.length>1?'s':'');
+}
+
+function getData(){
+  var c=ST.cfg;
+  return{
+    bc:ST.bcNum,
+    date:new Date().toLocaleDateString('fr-FR',{day:'2-digit',month:'2-digit',year:'numeric'}),
+    co:{name:c.name||'Mon Entreprise',phone:c.phone||'',email:c.email||'',addr:c.addr||'',rc:c.rc||'',info:c.info||''},
+    cl:{code:(document.getElementById('cCode')||{}).value||'',name:(document.getElementById('cName')||{}).value||'',phone:(document.getElementById('cPhone')||{}).value||'',addr:(document.getElementById('cAddr')||{}).value||'',note:(document.getElementById('cNote')||{}).value||''},
+    cart:ST.cart.slice(),
+    tq:ST.cart.reduce(function(s,i){return s+i.qty;},0),
+    disc:null
+  };
+}
+
+function buildPDF(data){
+  var jsPDF=window.jspdf.jsPDF,doc=new jsPDF({orientation:'portrait',unit:'mm',format:'a4'});
+  var M=18,W=210,H=297;
+  doc.setFillColor(26,26,46);doc.roundedRect(M,13,W-M*2,40,4,4,'F');
+  var lx=M+6;
+  if(ST.logo){try{var t=ST.logo.indexOf('png')!==-1?'PNG':'JPEG';doc.addImage(ST.logo,t,lx,17,24,24);}catch(e){}}
+  var cx=ST.logo?lx+30:lx;
+  doc.setFont('helvetica','bold');doc.setFontSize(14);doc.setTextColor(255,255,255);doc.text(data.co.name,cx,27);
+  doc.setFont('helvetica','normal');doc.setFontSize(7.5);doc.setTextColor(160,160,190);
+  var ci=[data.co.phone,data.co.email,data.co.addr].filter(Boolean).join('  |  ');
+  if(ci)doc.text(ci,cx,34);if(data.co.rc)doc.text('RC: '+data.co.rc,cx,40);if(data.co.info)doc.text(data.co.info,cx,46);
+  doc.setFont('helvetica','bold');doc.setFontSize(8);doc.setTextColor(232,69,69);doc.text('BON DE COMMANDE',W-M-4,21,{align:'right'});
+  doc.setFontSize(13);doc.setTextColor(255,255,255);doc.text(data.bc,W-M-4,30,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(160,160,190);doc.text('Date : '+data.date,W-M-4,37,{align:'right'});
+  var y=63;
+  doc.setFillColor(242,241,238);doc.roundedRect(M,y,W-M*2,30,3,3,'F');
+  doc.setFont('helvetica','bold');doc.setFontSize(7);doc.setTextColor(130,130,150);doc.text('CLIENT',M+6,y+7);
+  doc.setFillColor(232,69,69);doc.rect(M+6,y+8.5,14,0.7,'F');
+  if(data.cl.code){doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(150,150,170);doc.text('Code : '+data.cl.code,M+6,y+14);}
+  doc.setFont('helvetica','bold');doc.setFontSize(11);doc.setTextColor(26,26,46);doc.text(data.cl.name||'\u2014',M+6,y+(data.cl.code?21:16));
+  doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(80,80,100);
+  var cd=[data.cl.phone,data.cl.addr].filter(Boolean).join('  \u2022  ');
+  if(cd)doc.text(cd,M+6,y+(data.cl.code?27:22));
+  if(data.cl.note)doc.text('Note : '+data.cl.note,M+6,y+(data.cl.code?32:27));
+  y+=38;
+  doc.autoTable({startY:y,margin:{left:M,right:M},head:[['R\u00e9f\u00e9rence','D\u00e9signation','Qt\u00e9']],body:data.cart.map(function(i){return[i.sku||'\u2014',i.name,i.qty];}),styles:{font:'helvetica',fontSize:8.5,cellPadding:4.5},headStyles:{fillColor:[26,26,46],textColor:[255,255,255],fontStyle:'bold',fontSize:8},alternateRowStyles:{fillColor:[248,247,244]},columnStyles:{0:{cellWidth:28,textColor:[150,150,160]},1:{cellWidth:'auto'},2:{cellWidth:24,halign:'center',fontStyle:'bold'}}});
+  y=doc.lastAutoTable.finalY+8;
+  var bw=78,bx=W-M-bw;
+  doc.setFillColor(248,247,244);doc.roundedRect(bx,y,bw,24,3,3,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(8.5);doc.setTextColor(100,100,100);doc.text('Total articles :',bx+6,y+8);
+  doc.setFont('helvetica','bold');doc.setTextColor(26,26,46);doc.text(data.tq+' unit\u00e9s',bx+bw-6,y+8,{align:'right'});
+  doc.setFont('helvetica','normal');doc.setTextColor(100,100,100);doc.text('R\u00e9f\u00e9rences :',bx+6,y+15);
+  doc.setFont('helvetica','bold');doc.setTextColor(26,26,46);doc.text(String(data.cart.length),bx+bw-6,y+15,{align:'right'});
+  var sy=Math.min(y+32,H-36);
+  doc.setDrawColor(200,198,195);doc.setLineWidth(0.3);doc.line(M,sy,M+58,sy);
+  doc.setFont('helvetica','normal');doc.setFontSize(7);doc.setTextColor(150,150,150);doc.text('Signature & Cachet client',M,sy+5);
+  doc.setFillColor(26,26,46);doc.rect(0,H-9,W,9,'F');
+  doc.setFont('helvetica','normal');doc.setFontSize(6.5);doc.setTextColor(100,100,140);doc.text(data.co.name+'  \u2022  '+data.bc+'  \u2022  '+data.date,W/2,H-3.5,{align:'center'});
+  return doc;
+}
+
+function doPDF(){
+  if(!ST.cart.length){toast('Le panier est vide','err');return;}
+  if(!(document.getElementById('cName')||{}).value){toast('Saisir le nom du client','err');return;}
+  var data=getData(),doc=buildPDF(data);
+  saveHist(data);bumpBC();
+  var fname=data.bc+'.pdf';
+  // Get base64 output
+  var b64=doc.output('datauristring');
+  _pdfUri=b64;_pdfFile=fname;
+  // Try 1: Web Share API with file (best for Android)
+  try{
+    var arr=doc.output('arraybuffer');
+    var blob=new Blob([arr],{type:'application/pdf'});
+    var file=new File([blob],fname,{type:'application/pdf'});
+    if(navigator.share&&navigator.canShare&&navigator.canShare({files:[file]})){
+      navigator.share({files:[file],title:fname}).catch(function(){});
+      showPdfOv(b64,fname);
+      toast('PDF prêt ✓','ok');return;
+    }
+  }catch(e1){}
+  // Try 2: Blob URL
+  try{
+    var arr2=doc.output('arraybuffer');
+    var blob2=new Blob([arr2],{type:'application/pdf'});
+    var burl=URL.createObjectURL(blob2);
+    var a=document.createElement('a');a.href=burl;a.download=fname;a.style.display='none';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){try{URL.revokeObjectURL(burl);}catch(e){}},3000);
+    showPdfOv(b64,fname);
+    toast('PDF prêt ✓','ok');return;
+  }catch(e2){}
+  // Try 3: data URI anchor
+  try{
+    var a3=document.createElement('a');a3.href=b64;a3.download=fname;a3.style.display='none';
+    document.body.appendChild(a3);a3.click();a3.remove();
+  }catch(e3){}
+  // Always show viewer
+  showPdfOv(b64,fname);
+  toast('PDF prêt ✓','ok');
+}
+
+function showPdfOv(uri,fname){
+  var ov=document.getElementById('pdfOv'),fr=document.getElementById('pdfFrame'),ti=document.getElementById('pdfOvTitle'),sb=document.getElementById('pdfShareBtn'),hint=document.getElementById('pdfOvHint');
+  if(!ov)return;
+  _pdfUri=uri;_pdfFile=fname;
+  if(ti)ti.textContent=fname;
+  if(fr)fr.src=uri;
+  ov.style.display='flex';
+  if(sb)sb.style.display=(typeof navigator!=='undefined'&&navigator.share)?'inline-block':'none';
+  if(hint&&!('ontouchstart' in window))hint.style.display='none';
+}
+function closePdfOv(){
+  var ov=document.getElementById('pdfOv'),fr=document.getElementById('pdfFrame');
+  if(ov)ov.style.display='none';if(fr)fr.src='';
+}
+function sharePdf(){
+  if(!_pdfUri)return;
+  try{
+    var b64=_pdfUri.split(',')[1],bin=atob(b64),arr=new Uint8Array(bin.length);
+    for(var i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    var blob=new Blob([arr],{type:'application/pdf'}),file=new File([blob],_pdfFile,{type:'application/pdf'});
+    if(navigator.canShare&&navigator.canShare({files:[file]}))navigator.share({files:[file],title:_pdfFile});
+    else if(navigator.share)navigator.share({title:_pdfFile});
+  }catch(e){toast('Erreur partage','err');}
+}
+
+function buildHTML(data){
+  var rows=data.cart.map(function(it,i){return'<tr style="background:'+(i%2===0?'#fff':'#f8f7f4')+'"><td style="padding:7px 10px;color:#999">'+esc(it.sku||'—')+'</td><td style="padding:7px 10px;font-weight:500">'+esc(it.name)+'</td><td style="padding:7px 10px;text-align:center;font-weight:700;color:#1a1a2e">'+it.qty+'</td></tr>';}).join('');
+  return'<div style="font-family:sans-serif;font-size:13px;color:#1a1a1a">'
+    +'<div style="background:#1a1a2e;border-radius:7px;padding:18px 22px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:flex-start">'
+    +'<div>'+(ST.logo?'<img src="'+ST.logo+'" style="height:34px;margin-bottom:7px;display:block">':'')
+    +'<div style="color:#fff;font-size:15px;font-weight:700">'+esc(data.co.name)+'</div>'
+    +'<div style="color:#aaa;font-size:10px;margin-top:3px">'+esc([data.co.phone,data.co.email,data.co.addr].filter(Boolean).join(' | '))+'</div>'
+    +(data.co.rc?'<div style="color:#777;font-size:9px;margin-top:2px">RC : '+esc(data.co.rc)+'</div>':'')+'</div>'
+    +'<div style="text-align:right"><div style="color:#e84545;font-size:9px;font-weight:700;letter-spacing:.8px">BON DE COMMANDE</div>'
+    +'<div style="color:#fff;font-size:17px;font-weight:800;margin:4px 0">'+esc(data.bc)+'</div>'
+    +'<div style="color:#aaa;font-size:10px">Date : '+esc(data.date)+'</div></div></div>'
+    +'<div style="background:#f2f1ee;border-radius:6px;padding:12px 16px;margin-bottom:16px">'
+    +'<div style="color:#888;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-bottom:5px">Client</div>'
+    +(data.cl.code?'<div style="font-size:10px;color:#888;margin-bottom:3px">Code : <strong>'+esc(data.cl.code)+'</strong></div>':'')
+    +'<div style="font-size:14px;font-weight:700">'+esc(data.cl.name||'—')+'</div>'
+    +'<div style="font-size:10px;color:#666;margin-top:3px">'+esc([data.cl.phone,data.cl.addr].filter(Boolean).join('  •  '))+'</div>'
+    +(data.cl.note?'<div style="font-size:10px;color:#888;margin-top:2px;font-style:italic">'+esc(data.cl.note)+'</div>':'')+'</div>'
+    +'<table style="width:100%;border-collapse:collapse;margin-bottom:14px;font-size:11.5px">'
+    +'<thead><tr style="background:#1a1a2e;color:#fff"><th style="padding:7px 10px;text-align:left">Référence</th><th style="padding:7px 10px;text-align:left">Désignation</th><th style="padding:7px 10px;text-align:center">Qté</th></tr></thead>'
+    +'<tbody>'+rows+'</tbody></table>'
+    +'<div style="display:flex;justify-content:flex-end"><div style="background:#f2f1ee;border-radius:7px;padding:12px 16px;min-width:175px">'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px"><span style="color:#888">Total articles</span><span style="font-weight:600">'+data.tq+' unités</span></div>'
+    +'<div style="display:flex;justify-content:space-between;font-size:11px"><span style="color:#888">Références</span><span style="font-weight:600">'+data.cart.length+'</span></div>'
+    +'</div></div></div>';
+}
+
+function doPreview(){
+  if(!ST.cart.length){toast('Le panier est vide','err');return;}
+  var data=getData();
+  var el=document.getElementById('pvBcN');if(el)el.textContent=data.bc;
+  var pv=document.getElementById('pvf');if(pv)pv.innerHTML=buildHTML(data);
+  openMo('pvMo');
+}
+function livePreview(){
+  var mo=document.getElementById('pvMo');
+  if(mo&&mo.classList.contains('on')){var data=getData();var el=document.getElementById('pvBcN');if(el)el.textContent=data.bc;var pv=document.getElementById('pvf');if(pv)pv.innerHTML=buildHTML(data);}
+  renderCart();
+}
+
+function saveHist(data){
+  ST.hist.unshift({id:Date.now(),bc:data.bc,cl:data.cl.name||'—',date:data.date,tq:data.tq,items:data.cart.length,cart:data.cart,clData:data.cl});
+  if(ST.hist.length>200)ST.hist=ST.hist.slice(0,200);
+  save();renderHist();
+}
+function renderHist(){
+  var el=document.getElementById('histList'),badge=document.getElementById('hBadge');
+  if(badge)badge.textContent=ST.hist.length;
+  if(!ST.hist.length){el.innerHTML='<div class="emp"><div class="ei">📋</div><p>Aucun bon généré</p></div>';return;}
+  el.innerHTML='';
+  ST.hist.forEach(function(h){
+    var d=document.createElement('div');d.className='hr2';
+    d.innerHTML='<div style="flex:1;min-width:0"><div class="hbc">'+esc(h.bc)+'</div><div class="hcl">'+esc(h.cl)+'</div><div class="hdt">'+esc(h.date)+' · '+h.items+' réf.</div></div>'
+      +'<div class="hqt">'+h.tq+' u.</div><div style="display:flex;gap:4px;margin-left:8px"></div>';
+    var acts=d.querySelector('div:last-child');
+    var cp=document.createElement('button');cp.className='btn bg bi bs';cp.title='Dupliquer';
+    cp.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>';
+    cp.onclick=(function(id){return function(){dupOrd(id);};})(h.id);
+    var dl=document.createElement('button');dl.className='btn br bi bs';dl.title='Supprimer';
+    dl.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>';
+    dl.onclick=(function(id){return function(){delHist(id);};})(h.id);
+    acts.appendChild(cp);acts.appendChild(dl);el.appendChild(d);
+  });
+}
+function dupOrd(id){
+  var h=ST.hist.find(function(x){return x.id===id;});if(!h)return;
+  ST.cart=h.cart.map(function(c){return Object.assign({},c);});
+  if(h.clData){
+    var f=function(eid,val){var el=document.getElementById(eid);if(el)el.value=val||'';};
+    f('cCode',h.clData.code);f('cName',h.clData.name);f('cPhone',h.clData.phone);f('cAddr',h.clData.addr);f('cNote',h.clData.note);
+  }
+  renderCart();renderSB();renderMN();switchTab('nouveau');toast('Bon dupliqué dans le panier','ok');
+}
+function delHist(id){
+  if(!confirm("Supprimer ce bon ?"))return;
+  ST.hist=ST.hist.filter(function(h){return h.id!==id;});save();renderHist();
+}
+
+function newOrder(){
+  if(ST.cart.length&&!confirm('Créer un nouveau bon ? Le panier sera vidé.'))return;
+  ST.cart=[];
+  ['cCode','cName','cPhone','cAddr','cNote'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  refreshBC();renderCart();renderSB();renderMN();toast('Nouveau bon prêt');
+}
+
+function loadCfgUI(){
+  var c=ST.cfg,m={coName:'name',coPhone:'phone',coEmail:'email',coAddr:'addr',coRC:'rc',coInfo:'info'};
+  Object.keys(m).forEach(function(eid){var el=document.getElementById(eid);if(el&&c[m[eid]])el.value=c[m[eid]];});
+  if(ST.logo){var lb=document.getElementById('lBox');if(lb)lb.innerHTML='<img src="'+ST.logo+'">';var rb=document.getElementById('rmLogo');if(rb)rb.style.display='inline-flex';}
+}
+function saveSt(){
+  ST.cfg={name:document.getElementById('coName').value,phone:document.getElementById('coPhone').value,email:document.getElementById('coEmail').value,addr:document.getElementById('coAddr').value,rc:document.getElementById('coRC').value,info:document.getElementById('coInfo').value};
+  save();closeMo('stMo');toast('Paramètres enregistrés','ok');
+}
+function handleLogo(e){
+  var f=e.target.files[0];if(!f)return;
+  if(f.size>2*1024*1024){toast('Logo trop volumineux (max 2 Mo)','err');return;}
+  var r=new FileReader();r.onload=function(ev){ST.logo=ev.target.result;var lb=document.getElementById('lBox');if(lb)lb.innerHTML='<img src="'+ST.logo+'">';var rb=document.getElementById('rmLogo');if(rb)rb.style.display='inline-flex';save();toast('Logo chargé','ok');};r.readAsDataURL(f);
+}
+function removeLogo(){ST.logo=null;try{localStorage.removeItem('bc_l');}catch(e){}var lb=document.getElementById('lBox');if(lb)lb.innerHTML='<svg xmlns="http://www.w3.org/2000/svg" width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>';var rb=document.getElementById('rmLogo');if(rb)rb.style.display='none';toast('Logo retiré');}
+
+function openMo(id){var el=document.getElementById(id);if(el)el.classList.add('on');}
+function closeMo(id){var el=document.getElementById(id);if(el)el.classList.remove('on');}
+
+function toggleTheme(){
+  var next=document.documentElement.getAttribute('data-theme')==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  try{localStorage.setItem('bc_theme',next);}catch(e){}
+  var ico=document.getElementById('thIco');
+  if(ico){if(next==='dark'){ico.innerHTML='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';}else{ico.innerHTML='<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9z"/>';}}
+}
+
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function toast(msg,type){
+  var c=document.getElementById('tcont');if(!c)return;
+  var t=document.createElement('div');t.className='toast '+(type||'');
+  var ic=type==='ok'?'✓':type==='err'?'✕':'ℹ';
+  t.textContent=ic+' '+msg;
+  c.appendChild(t);
+  setTimeout(function(){t.style.opacity='0';t.style.transform='translateX(16px)';setTimeout(function(){t.remove();},220);},3000);
+}
+
+// BOOT
+(function(){try{var t=localStorage.getItem('bc_theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+window.addEventListener('load',function(){
+  try{var t=localStorage.getItem('bc_theme');if(t==='dark'){var ico=document.getElementById('thIco');if(ico)ico.innerHTML='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/>';}}catch(e){}
+  function tryInit(n){if(window.jspdf){init();}else if(n>0){setTimeout(function(){tryInit(n-1);},150);}else{init();}}
+  tryInit(20);
+});
+</script>
+</body>
+</html>
